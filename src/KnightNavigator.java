@@ -12,9 +12,10 @@ public class KnightNavigator {
         int minMoves = getMinMoves(src, dest);
         System.out.println(minMoves);
         scanner.close();
+
+        // System.out.println(Arrays.toString(getLegalMoves(19)));
     }
 
-    // bfs
     public static int getMinMoves(int src, int dest) {
         ArrayDeque<Integer> q = new ArrayDeque<Integer>();
         ArrayDeque<Integer> parents = new ArrayDeque<Integer>();
@@ -22,7 +23,7 @@ public class KnightNavigator {
         if (src == dest) {
             return 0;
         }
-        int min = 0;
+        int min = 1;
         int currentParent = 1;
         q.add(src);
         parents.push(-1); // indicates root
@@ -31,36 +32,27 @@ public class KnightNavigator {
             if (verify != dest) {
                 explored.push(verify);
                 int[] nextMoves = getLegalMoves(verify);
-                System.out.println("from " + verify + " legal moves are " + Arrays.toString(nextMoves));
                 for (int i = 0; i < nextMoves.length; i++) {
                     if (nextMoves[i] != -1 && !explored.contains(nextMoves[i])) {
-                        System.out.println("adding " + nextMoves[i] + " to q");
-                        System.out.println("adding " + verify + " to parents");
                         q.add(nextMoves[i]);
                         parents.push(verify);
                     }
                 }
             } else {
-                System.out.println(verify + " is " + dest);
-                // count the parents to the root
-                while (!q.isEmpty()) {
-                    System.out.println("q size = " + q.size());
-                    System.out.println("parents size = " + parents.size());
-                    q.remove();
+                for (int i = 0; i <= q.size(); i++) {
                     currentParent = parents.pop();
                 }
+                int backTrack = -1;
+                int backTrackParent = -1;
                 while (currentParent != src) {
-                    min++;
-                    int backTrack = -1;
                     while (backTrack != currentParent) {
                         backTrack = explored.pop();
-                        if (backTrack == currentParent) {
-                            currentParent = parents.pop();
-                        } else {
-                            parents.pop();
-                        }
+                        backTrackParent = parents.pop();
                     }
+                    currentParent = backTrackParent;
+                    min++;
                 }
+                return min;
             }
         }
         return min;
