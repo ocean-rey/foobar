@@ -1,9 +1,9 @@
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 
 public class AbsorbingMarkovChain {
+    static Map<Integer, Callable<Void>[]> memo;
     public static void main(String[] args) {
         int[][] firstTestCase = { { 0, 2, 1, 0, 0 }, { 0, 0, 0, 3, 4 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 0, 0 } };
@@ -54,8 +54,7 @@ public class AbsorbingMarkovChain {
         return answer;
     }
 
-    static int[] engelsAlgorithm(int[] chips, int[][] matrix, int[] denominators, boolean isFirst,
-            Map<Integer, Callable<Void>[]> memo) {
+    static int[] engelsAlgorithm(int[] chips, int[][] matrix, int[] denominators, boolean isFirst) {
         if (!isFirst) {
             boolean criticalLoading = true;
             for (int i = 0; i < chips.length; i++) {
