@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch AbsorbingMarkovChain",
+            "request": "launch",
+            "mainClass": "AbsorbingMarkovChain",
+            "projectName": "foobar_59c9029f"
+        },
+        {
+            "type": "java",
             "name": "Launch BunnyIdFromCoordinates",
             "request": "launch",
             "mainClass": "BunnyIdFromCoordinates",

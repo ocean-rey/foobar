@@ -3,22 +3,17 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class AbsorbingMarkovChain {
-    static Map<Integer, Callable<Void>[]> memo;
     public static void main(String[] args) {
         int[][] firstTestCase = { { 0, 2, 1, 0, 0 }, { 0, 0, 0, 3, 4 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 0, 0 } };
         int[][] secondTestCase = { { 0, 1, 0, 0, 0, 1 }, { 4, 0, 0, 3, 2, 0 }, { 0, 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } };
-        int[][] thirdTestCase = { { 0, 0, 0, 0, 0 } };
-        int[][] fourthTestCase = new int[20][20];
-        fourthTestCase[0][0] = 1;
-        fourthTestCase[0][8] = 1;
+        int[][] thirdTestCase = { { 0, 1, 1, 1 }, { 0, 0, 0, 0 }, { 1, 0, 0, 0 }, { 0, 0, 0, 0 } };
         System.out.println(
                 Arrays.toString(solution(firstTestCase)));
         System.out.println(
                 Arrays.toString(solution(secondTestCase)));
         System.out.println(Arrays.toString(solution(thirdTestCase)));
-        System.out.println(Arrays.toString(solution(fourthTestCase)));
     }
 
     public static int[] solution(int[][] m) {
@@ -46,9 +41,13 @@ public class AbsorbingMarkovChain {
         int[] engels = engelsAlgorithm(chips, m, denominators, true);
         int denominator = 0;
         int[] answer = new int[terminalCount + 1];
-        for (int i = 0; i < answer.length - 1; i++) {
-            answer[i] = engels[i + transientCount];
-            denominator = denominator + engels[i + transientCount];
+        int answersIndex = 0;
+        for (int i = 0; i < engels.length; i++) {
+            if (denominators[i] == 0) {
+                answer[answersIndex] = engels[i];
+                answersIndex++;
+                denominator = denominator + engels[i];
+            }
         }
         answer[answer.length - 1] = denominator;
         return answer;
@@ -82,21 +81,16 @@ public class AbsorbingMarkovChain {
             if (denominators[i] != 0) {
                 if (chips[i] >= denominators[i]) {
                     typeTwoMoveAvailable = true;
-                    if (memo.containsKey(i)) {
-
-                    } else {
-                        for (int j = 0; j < matrix[i].length; j++) {
-                            chips[i] = chips[i] - matrix[i][j];
-                            chips[j] = chips[j] + matrix[i][j];
-                        }
+                    for (int j = 0; j < matrix[i].length; j++) {
+                        chips[i] = chips[i] - matrix[i][j];
+                        chips[j] = chips[j] + matrix[i][j];
                     }
+
                 }
-            } else {
-                break;
             }
         }
         if (!typeTwoMoveAvailable) {
-            chips[0]++;
+            chips[0] = chips[0] + (denominators[0] - chips[0]);
         }
         return (engelsAlgorithm(chips, matrix, denominators, isFirst));
     }
