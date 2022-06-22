@@ -1,12 +1,8 @@
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AbsorbingMarkovChain {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
         int[][] firstTestCase = { { 0, 2, 1, 0, 0 }, { 0, 0, 0, 3, 4 }, { 0, 0, 0, 0,
                 0 }, { 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 0, 0 } };
@@ -16,12 +12,29 @@ public class AbsorbingMarkovChain {
 
         int[][] thirdTestCase = { { 0, 1, 1, 1 }, { 0, 0, 0, 0 }, { 1, 0, 0, 0 }, { 0, 0, 0, 0 } };
 
-        System.out.println(
-                Arrays.toString(solution(firstTestCase)));
-        System.out.println(
-                Arrays.toString(solution(secondTestCase)));
+        int[][] fourthTestCase = { { 0, 1 }, { 0, 0, }, };
+        int[][] fifthTestCase = { { 0 } };
+        int[][] sixthTestCase = { { 0, 3, 5, 2, 6, }, { 2, 2, 5, 4, 6, },
+                { 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, }, { 0, 1, 2, 3, 4, }, };
+
+        int[][] seventhTestCase = { { 0, 5, 3, 6 }, { 40, 0, 40, 60 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+
+        System.out.println(Arrays.toString(solution(firstTestCase)));
+        System.out.println(Arrays.toString(solution(secondTestCase)));
 
         System.out.println(Arrays.toString(solution(thirdTestCase)));
+
+        System.out.println(Arrays.toString(solution(fourthTestCase)));
+        System.out.println(Arrays.toString(solution(fifthTestCase)));
+
+        System.out.println(Arrays.toString(solution(sixthTestCase)));
+
+        System.out.println(Arrays.deepToString(sixthTestCase));
+        System.out.println(Arrays.deepToString(seventhTestCase));
+        System.out.println(Arrays.toString(solution(seventhTestCase)));
+
+        System.out.println(Arrays.deepToString(seventhTestCase));
+
     }
 
     public static int[] solution(int[][] m) {
@@ -29,8 +42,12 @@ public class AbsorbingMarkovChain {
         int terminalCount = 0;
         int[] chips = new int[m.length];
         for (int i = 0; i < m.length; i++) {
+            int gcd = gcdOfArray(m[i], 0);
             int denominator = 0;
             for (int j = 0; j < m[i].length; j++) {
+                if (gcd != 0) {
+                    m[i][j] = m[i][j] / gcd;
+                }
                 denominator = denominator + m[i][j];
             }
             denominators[i] = denominator;
@@ -51,9 +68,7 @@ public class AbsorbingMarkovChain {
             answer[answer.length - 1] = 1;
             return answer;
         }
-
-        Map<Integer, List<ChipMove>> memo = new HashMap<Integer, List<ChipMove>>();
-        int[] engels = engelsAlgorithm(chips, m, denominators, true, memo);
+        int[] engels = engelsAlgorithm(chips, m, denominators);
         int answersIndex = 0;
         int denominator = 0;
         for (int i = 0; i < engels.length; i++) {
@@ -67,10 +82,26 @@ public class AbsorbingMarkovChain {
         return answer;
     }
 
-    static int[] engelsAlgorithm(int[] chips, int[][] matrix, int[] denominators, boolean isFirst,
-            Map<Integer, List<ChipMove>> memo) {
-        if (!isFirst) {
-            boolean criticalLoading = true;
+    static int[] engelsAlgorithm(int[] chips, int[][] matrix, int[] denominators) {
+        boolean criticalLoading = false;
+        while (!criticalLoading) {
+            boolean typeOneMoveAvailable = false;
+            for (int i = 0; i < chips.length; i++) {
+                if (denominators[i] != 0) {
+                    if (chips[i] >= denominators[i]) {
+                        typeOneMoveAvailable = true;
+                        for (int j = 0; j < matrix[i].length; j++) {
+                            if (matrix[i][j] != 0) {
+                                chips[i] = chips[i] - matrix[i][j];
+                                chips[j] = chips[j] + matrix[i][j];
+                            }
+                        }
+                    }
+                }
+            }
+            if (!typeOneMoveAvailable)
+                chips[0] = chips[0] + (denominators[0] - chips[0]);
+            criticalLoading = true;
             for (int i = 0; i < chips.length; i++) {
                 if (denominators[i] != 0) {
                     if (i == 0) {
@@ -85,53 +116,22 @@ public class AbsorbingMarkovChain {
                         }
                     }
                 }
-
-            }
-            if (criticalLoading) {
-                return chips;
             }
         }
-        isFirst = false;
-        boolean typeOneMoveAvailable = false;
-        for (int i = 0; i < chips.length; i++) {
-            if (denominators[i] != 0) {
-                if (chips[i] >= denominators[i]) {
-                    typeOneMoveAvailable = true;
-                    List<ChipMove> chipMoves;
-                    if (memo.containsKey(i)) {
-                        chipMoves = memo.get(i);
-                    } else {
-                        chipMoves = new ArrayList<>();
-                        for (int j = 0; j < matrix[i].length; j++) {
-                            if (matrix[i][j] != 0) {
-                                chipMoves.add(new ChipMove(i, j, matrix[i][j]));
-                            }
-                        }
-                        memo.put(i, chipMoves);
-                    }
-                    chipMoves.forEach(move -> moveChips(chips, move));
-                }
-            }
-
-        }
-        if (!typeOneMoveAvailable)
-            chips[0] = chips[0] + (denominators[0] - chips[0]);
-        return (engelsAlgorithm(chips, matrix, denominators, isFirst, memo));
+        return chips;
     }
 
-    public static void moveChips(int[] chips, ChipMove move) {
-        chips[move.from] = chips[move.from] - move.count;
-        chips[move.to] = chips[move.to] + move.count;
-        return;
+    static int __gcd(int a, int b) {
+        return b == 0 ? a : __gcd(b, a % b);
     }
 
-    static class ChipMove {
-        int from, to, count;
-
-        public ChipMove(int from, int to, int count) {
-            this.count = count;
-            this.to = to;
-            this.from = from;
+    static int gcdOfArray(int[] arr, int idx) {
+        if (idx == arr.length - 1) {
+            return arr[idx];
         }
+        int a = arr[idx];
+        int b = gcdOfArray(arr, idx + 1);
+        return __gcd(
+                a, b);
     }
 }
