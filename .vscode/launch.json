@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch AbsorbingMarkovChain",
+            "request": "launch",
+            "mainClass": "AbsorbingMarkovChain",
+            "projectName": "foobar_993b926c"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
